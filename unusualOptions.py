@@ -35,16 +35,17 @@ for i in tickerList:
     
     print('Gathering data for ' + i)
     # request single ticker data // market type under ticker types in docs
-    singleSnap = client.get_snapshot_all(market_type='stocks', 
-                                         tickers=i)
+    singleSnap = client.get_snapshot_all(
+        market_type='stocks', 
+        tickers=i
+    )
     
     # close price // there's a couple different ways to do this
     stockClosePrice = singleSnap[0].day.close
     
     # get all options data for individual ticker
     contractData = []
-    for c in client.list_options_contracts(underlying_ticker = i,
-                                           limit = 1000):
+    for c in client.list_options_contracts(underlying_ticker = i, limit = 1000):
         contractData.append(c)
     # print(contractData)
         
@@ -114,11 +115,13 @@ for i in tickerList:
         
         # request daily agg data // if there is no volume, continue
         try: 
-            dailyOptionData = client.get_aggs(ticker = optionTicker, 
-                                         multiplier = 1,
-                                         timespan = 'day',
-                                         from_ = prevBusinessDayStr,
-                                         to = prevBusinessDayStr)
+            dailyOptionData = client.get_aggs(
+                ticker = optionTicker, 
+                multiplier = 1,
+                timespan = 'day',
+                from_ = prevBusinessDayStr,
+                to = prevBusinessDayStr
+            )
             
         # if there is no option volume, then continue to next contract
         except NoResultsError:
@@ -131,45 +134,51 @@ for i in tickerList:
         volumeOverOpenInt = volume/openInterest
     
         # write individual option data to list 
-        optionDataList.append([i,
-                               stockClosePrice,
-                               contractType,
-                               strikePrice,
-                               expirationDate,
-                               dte,
-                               bid,
-                               mid,
-                               ask,
-                               lastOptionPrice,
-                               volume,
-                               openInterest,
-                               volumeOverOpenInt,
-                               impVol,
-                               delta,
-                               lastTradeDate])
+        optionDataList.append([
+            i,
+            stockClosePrice,
+            contractType,
+            strikePrice,
+            expirationDate,
+            dte,
+            bid,
+            mid,
+            ask,
+            lastOptionPrice,
+            volume,
+            openInterest,
+            volumeOverOpenInt,
+            impVol,
+            delta,
+            lastTradeDate
+        ])
         
         print('Data gathered successfully for ' + optionTicker)
 
 # list to dataframe
 unusualOptionData = pd.DataFrame(optionDataList)
-unusualOptionData.columns = ['Symbol',
-                             'Stock Price',
-                             'Type',
-                             'Strike',
-                             'Exp Date',
-                             'DTE',
-                             'Bid',
-                             'Midpoint',
-                             'Ask',
-                             'Last',
-                             'Volume',
-                             'Open Int',
-                             'VolOverOpenInt',
-                             'IV',
-                             'Delta',
-                             'Last Trade']
+unusualOptionData.columns = [
+    'Symbol',
+    'Stock Price',
+    'Type',
+    'Strike',
+    'Exp Date',
+    'DTE',
+    'Bid',
+    'Midpoint',
+    'Ask',
+    'Last',
+    'Volume',
+    'Open Int',
+    'VolOverOpenInt',
+    'IV',
+    'Delta',
+    'Last Trade'
+]
 
 # sort by vol/OI
-unusualOptionData = unusualOptionData.sort_values(by=['VolOverOpenInt'],
-                                                  ascending=False,
-                                                  ignore_index=True)
+unusualOptionData = unusualOptionData.sort_values(
+    by=['VolOverOpenInt'],
+    ascending=False,
+    ignore_index=True
+)
